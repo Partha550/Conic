@@ -3,20 +3,6 @@ import matplotlib.pyplot as plt
 get_ipython().run_line_magic('matplotlib', 'inline')
 import numpy as np
 
-class Point:
-    def __init__ (self, x, y):
-        self.value = (x,y)
-        self._x = x
-        self._y = y
-        
-    def __str__ (self):
-        return (f'({self._x},{self._y})')
-    
-    def __add__ (self, other, /):
-        sum_x = self._x + other._x
-        sum_y = self._y + other._y
-        return Point(sum_x, sum_y)
-
 class Conic :
     _x_initial, _y_initial = 0, 0
     def __init__ (self, a, b=None, h=0, k=0):
