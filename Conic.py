@@ -1,6 +1,4 @@
-
 import matplotlib.pyplot as plt
-get_ipython().run_line_magic('matplotlib', 'inline')
 import numpy as np
 
 class Point:
@@ -17,20 +15,13 @@ class Point:
         sum_y = self._y + other._y
         return Point(sum_x, sum_y)
 
-class Conic :
+class _Conic :
     _x_initial, _y_initial = 0, 0
-    def __init__ (self, a, b=None, h=0, k=0):
-        """
-        Define a Conic section
-        a = Cemi-major axis
-        b = Cemi-minor axis, if not provided, b will be equal to a (circle)
+    def __init__ (self, h=0, k=0):
+        """Define a Conic section.
         h = x co-ordinate of the center
         k = y co-ordinate of the center
         """
-        if b==None:
-            b=a
-        self.cemimajor_axis = a
-        self.cemiminor_axis = b
         self._x_center, self._y_center = h, k
         self.center = (self._x_center, self._y_center)
         
@@ -69,46 +60,68 @@ class Conic :
         plt.grid() 
         plt.axis("scaled")
 
-class Ellipse(Conic):
-    def __init__ (self, a, b=None, h=0, k=0):
-        super().__init__ (a, b, h, k)
-        self.edges = int((2*(self.cemimajor_axis + self.cemiminor_axis) + 50))
+class Ellipse(_Conic):
+    def __init__ (self, a, b=None, h=0, k=0, edges=300):
+        """Creates an ellipse
+        a = Horizontal radius
+        b = Vertical radius, if not provided, b will be equal to a.
+        h = x co-ordinate of the center
+        k = y co-ordinate of the center
+        """
+        super().__init__ (h, k)
+        if b==None:
+            b = a
+        self._horiz_rad, self._vert_rad = a, b
+        self.cemimajor_axis = max(a,b)
+        self.cemiminor_axis = min(a,b)
+        self.edges = edges
         t = 2*np.pi*(np.linspace(0,1,self.edges))
-        self._x_initial = self.cemimajor_axis*(np.cos(t))
-        self._y_initial = self.cemiminor_axis*(np.sin(t))
+        self._x_initial = self._horiz_rad*(np.cos(t))
+        self._y_initial = self._vert_rad*(np.sin(t))
+        
+    @property    
+    def auxilliary_circle(self):
+        center = (self._x_center, self._y_center)
+        rad = self.cemimajor_axis
+        return Circle(r=rad, h=center[0], k=center[1])
 
-class Circle(Conic):
-    def __init__ (self, r, h=0, k=0):
-        super().__init__ (0,0, h, k)
-        delattr(self, 'cemimajor_axis')
-        delattr(self, 'cemiminor_axis')
+class Circle(_Conic):
+    def __init__ (self, r, h=0, k=0, edges=300):
+        """Creates an circle
+        r = radius of the circle
+        h = x co-ordinate of the center
+        k = y co-ordinate of the center
+        """
+        super().__init__ (h, k)
         self.radius = r
-        self.edges = int((4*(self.radius) + 50))
+        self.edges = edges
         t = 2*np.pi*(np.linspace(0,1,self.edges))
         self._x_initial = self.radius*(np.cos(t))
         self._y_initial = self.radius*(np.sin(t))
         
-class Hyperbola(Conic):
-    def __init__ (self, a, b=None, h=0, k=0):
-        super().__init__ (a, b, h, k)
-        self.edges = int((4*(self.cemimajor_axis + self.cemiminor_axis) + 100))
+class Hyperbola(_Conic):
+    def __init__ (self, a, b=None, h=0, k=0, edges=300):
+        super().__init__ (h, k)
+        self.cemimajor_axis = a
+        self.cemiminor_axis = b
+        if b==None:
+            b = a
+        self.edges = edges
         t = 2*np.pi*(np.linspace(0,1,self.edges))
         self._x_initial = self.cemimajor_axis*(1/np.cos(t))
         self._y_initial = self.cemiminor_axis*(np.tan(t))
         
-    def draw(self, c='b'):
-        super().draw(c, midpoint=False)
+    def draw(self, c='b', zoom=100):
+        super().draw(c, zoom, midpoint=False)
         plt.xlim((self._x_center-10*self.cemimajor_axis), (self._x_center+10*self.cemimajor_axis))
         plt.ylim((self._y_center-10*self.cemiminor_axis), (self._y_center+10*self.cemiminor_axis))
         
-class Parabola(Conic):
-    def __init__ (self, p, h=0, k=0):
-        super().__init__ (None, None, h, k)
-        delattr(self, 'cemimajor_axis')
-        delattr(self, 'cemiminor_axis')
+class Parabola(_Conic):
+    def __init__ (self, p, h=0, k=0, edges=300):
+        super().__init__ (h, k)
         self.vertex = (h, k)
         self.rate = p
-        self.edges = 300 #int((4*(self.cemimajor_axis + self.cemiminor_axis) + 100))
+        self.edges = edges
         t_rev = np.linspace(10,0,self.edges)
         x_upper = p*np.square(t_rev)
         y_upper = 2*p*t_rev
@@ -116,4 +129,3 @@ class Parabola(Conic):
         y_lower = -2*p*t_rev[::-1]
         self._x_initial = np.concatenate([x_upper,x_lower])
         self._y_initial = np.concatenate([y_upper,y_lower])
-
