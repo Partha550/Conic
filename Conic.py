@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-<<<<<<< HEAD
 class Point:
     def __init__ (self, x, y):
         self.value = (x,y)
@@ -17,9 +16,6 @@ class Point:
         return Point(sum_x, sum_y)
 
 class _Conic :
-=======
-class Conic :
->>>>>>> f054139ad79d358f00a4dea02e9f9cdb8f7ffa7b
     _x_initial, _y_initial = 0, 0
     def __init__ (self, h=0, k=0):
         """Define a Conic section.
